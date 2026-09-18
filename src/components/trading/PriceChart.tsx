@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   createChart,
   ColorType,
@@ -71,7 +71,9 @@ export default function PriceChart({
     activeIndicatorsRef.current = activeIndicators;
   }, [activeIndicators]);
 
-  const supabase = createClient();
+  // Memoized for the same reason as in TradingTerminal.tsx — see
+  // lib/supabase/client.ts for the underlying singleton fix.
+  const supabase = useMemo(() => createClient(), []);
 
   function toggleIndicator(key: IndicatorKey) {
     setActiveIndicators((prev) => {
