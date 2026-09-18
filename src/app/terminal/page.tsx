@@ -37,7 +37,7 @@ export default async function TradingTerminalPage() {
       .order("opened_at", { ascending: false }),
   ]);
 
-  const normalizedPositions = (positions ?? []).map((p) => ({
+  const normalizedPositions = (positions ?? []).map((p: (typeof positions)[number]) => ({
     ...p,
     markets: Array.isArray(p.markets) ? p.markets[0] ?? null : p.markets,
   }));
