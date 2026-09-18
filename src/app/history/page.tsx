@@ -20,7 +20,7 @@ export default async function TradeHistoryPage() {
     .order("closed_at", { ascending: false })
     .limit(100);
 
-  const normalized = (trades ?? []).map((t) => ({
+  const normalized = (trades ?? []).map((t: (typeof trades)[number]) => ({
     ...t,
     markets: Array.isArray(t.markets) ? t.markets[0] ?? null : t.markets,
   }));
