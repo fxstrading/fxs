@@ -130,7 +130,7 @@ export default function TradingTerminal({
       .eq("is_demo", mode === "demo")
       .order("opened_at", { ascending: false });
     if (data) {
-      const normalized = data.map((p) => ({
+      const normalized = data.map((p: (typeof data)[number]) => ({
         ...p,
         markets: Array.isArray(p.markets) ? p.markets[0] ?? null : p.markets,
       }));
