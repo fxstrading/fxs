@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
+import type { RealtimePostgresInsertPayload } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import PriceChart from "./PriceChart";
 
@@ -152,8 +153,8 @@ export default function TradingTerminal({
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "market_prices" },
-        (payload) => {
-          const row = payload.new as { market_id: string; bid: number; ask: number; ts: string };
+        (payload: RealtimePostgresInsertPayload<{ market_id: string; bid: number; ask: number; ts: string }>) => {
+          const row = payload.new;
           setPrices((prev) => ({
             ...prev,
             [row.market_id]: { bid: row.bid, ask: row.ask, ts: row.ts },
