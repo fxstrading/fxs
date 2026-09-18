@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #15161f;
+  --bg-elevated: #1e2030;
+  --bg-card: #1a1c29;
+  --border: #2c2e42;
+  --text: #f4f2ed;
+  --text-muted: #8b899b;
+  --coral: #ff6b4a;
+  --coral-dim: #e0573a;
+  --gold: #ffc857;
+  --lavender: #b8a6ff;
+  --fxs-blue: #3b82f6;
+  --fxs-blue-dim: #2563eb;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--coral);
+  color: #15161f;
+}
+
+/* Signature: carnival ticket stripe, used sparingly */
+.ticket-stripe {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--coral) 0px,
+    var(--coral) 10px,
+    var(--gold) 10px,
+    var(--gold) 20px
+  );
+}
+
+.funhouse-logo {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--coral) 0%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.fxs-logo {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--fxs-blue) 0%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-fxs {
+  background: linear-gradient(135deg, var(--fxs-blue) 0%, var(--fxs-blue-dim) 100%);
+  color: #fff;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 4px 14px -4px rgba(59, 130, 246, 0.45);
+}
+
+.btn-fxs:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -4px rgba(59, 130, 246, 0.55);
+}
+
+.btn-fxs:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-fxs:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--coral) 0%, var(--coral-dim) 100%);
+  color: #fff;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 4px 14px -4px rgba(255, 107, 74, 0.45);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -4px rgba(255, 107, 74, 0.55);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+.input-field {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.7rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.18);
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
+  .btn-primary {
+    transition: none;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

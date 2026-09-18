@@ -1,0 +1,44 @@
+# render.yaml — Render "Blueprint" for this app.
+#
+# Put this file in the repo root, then in the Render dashboard: New ->
+# Blueprint -> connect this GitHub repo. Render reads this file, creates
+# the service, and redeploys automatically on every push to main — no
+# manual "New Web Service" setup needed.
+#
+# Secrets (sync: false) are NOT stored in this file or in git. After the
+# first deploy, go to the service's Environment tab in the Render
+# dashboard and fill them in once.
+#
+# Free plan note: Render's free web services sleep after 15 minutes with
+# no inbound HTTP traffic. If you're pinging this with UptimeRobot to keep
+# it awake, point the monitor at the healthCheckPath below ("/") with an
+# interval under 15 minutes. Also be aware Render's free tier has a
+# monthly instance-hour cap (spread across all your free services) and
+# free services get a forced restart periodically — either of which will
+# briefly interrupt the background price engine in instrumentation.ts
+# until the next request wakes it back up.
+
+services:
+  - type: web
+    name: fxs-trading-app
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    autoDeploy: true
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CURRENCYFREAKS_API_KEY
+        sync: false
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
