@@ -51,7 +51,11 @@ export default function TradingTerminal({
   initialWallet: Wallet;
   initialPositions: Position[];
 }) {
-  const supabase = createClient();
+  // Memoized even though createClient() is now a singleton — cheap
+  // insurance so this component never re-runs its realtime effect
+  // (below) on every render regardless of how the client factory
+  // is implemented.
+  const supabase = useMemo(() => createClient(), []);
 
   const [markets] = useState<Market[]>(initialMarkets);
   const [mode, setMode] = useState<"demo" | "live">("demo");
