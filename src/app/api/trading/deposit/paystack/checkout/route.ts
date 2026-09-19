@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { initiateCheckout } from "@/lib/paystack/client";
-import { getUsdToKesRate } from "@/lib/trading/forex-feed";
+import { getUsdToKesDepositRate } from "@/lib/trading/deposit-rate";
 
 const MIN_DEPOSIT_USD = 10;
 
@@ -36,16 +36,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "An email on your account is required for card/bank checkout" }, { status: 400 });
   }
 
-  const rate = getUsdToKesRate();
+  const admin = createAdminClient();
+
+  const rate = await getUsdToKesDepositRate(admin);
   if (!rate) {
     return NextResponse.json(
-      { error: "Currency conversion rate is temporarily unavailable. Please try again shortly." },
+      { error: "Deposits are temporarily unavailable. Please try again shortly." },
       { status: 503 }
     );
   }
   const amountKes = Math.round(amountUsd * rate * 100) / 100;
-
-  const admin = createAdminClient();
 
   let { data: wallet } = await admin
     .from("wallets")
