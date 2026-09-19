@@ -331,13 +331,34 @@ export default function PriceChart({
   }, [latestTick, marketId]);
 
   return (
-    <div>
-      <div className="flex gap-1.5 mb-2 flex-wrap">
+    <div className="flex flex-col md:flex-row gap-3">
+      <div className="flex-1 min-w-0">
+        <div style={{ position: "relative" }}>
+          <div ref={containerRef} className="w-full" />
+          <ChartDrawingLayer
+            chart={chartRef.current}
+            series={seriesRef.current}
+            width={chartWidth}
+            height={300}
+            activeTool={activeTool}
+            onToolUsed={() => setActiveTool("cursor")}
+            clearSignal={clearSignal}
+          />
+        </div>
+      </div>
+
+      {/* Indicator + drawing tools: a right-side column on wider screens,
+          stacked above the chart on narrow/mobile viewports where a side
+          column wouldn't leave enough room for the chart itself. */}
+      <div className="flex flex-row md:flex-col gap-1.5 flex-wrap md:w-36 md:shrink-0 order-first md:order-last">
+        <p className="text-xs font-semibold w-full hidden md:block" style={{ color: "var(--text-muted)" }}>
+          Indicators
+        </p>
         {(Object.keys(INDICATOR_LABELS) as IndicatorKey[]).map((key) => (
           <button
             key={key}
             onClick={() => toggleIndicator(key)}
-            className="text-xs font-semibold px-2.5 py-1 rounded-lg transition"
+            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg transition md:w-full md:text-left"
             style={
               activeIndicators.has(key)
                 ? { background: "rgba(59,130,246,0.15)", color: "var(--fxs-blue)", border: "1px solid var(--fxs-blue)" }
@@ -347,9 +368,10 @@ export default function PriceChart({
             {INDICATOR_LABELS[key]}
           </button>
         ))}
-      </div>
 
-      <div className="flex gap-1.5 mb-2 flex-wrap">
+        <p className="text-xs font-semibold w-full hidden md:block mt-2" style={{ color: "var(--text-muted)" }}>
+          Draw
+        </p>
         {(
           [
             ["cursor", "Cursor"],
@@ -362,7 +384,7 @@ export default function PriceChart({
           <button
             key={tool}
             onClick={() => setActiveTool(tool)}
-            className="text-xs font-semibold px-2.5 py-1 rounded-lg transition"
+            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg transition md:w-full md:text-left"
             style={
               activeTool === tool
                 ? { background: "rgba(255,200,87,0.15)", color: "var(--gold)", border: "1px solid var(--gold)" }
@@ -374,31 +396,18 @@ export default function PriceChart({
         ))}
         <button
           onClick={() => setClearSignal((n) => n + 1)}
-          className="text-xs font-semibold px-2.5 py-1 rounded-lg transition"
+          className="text-xs font-semibold px-2.5 py-1.5 rounded-lg transition md:w-full md:text-left"
           style={{ background: "var(--bg-elevated)", color: "#f87171", border: "1px solid var(--border)" }}
         >
           Clear
         </button>
         <button
           onClick={() => chartRef.current?.timeScale().fitContent()}
-          className="text-xs font-semibold px-2.5 py-1 rounded-lg transition ml-auto"
+          className="text-xs font-semibold px-2.5 py-1.5 rounded-lg transition md:w-full md:text-left"
           style={{ background: "var(--bg-elevated)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
         >
           ⤢ Reset zoom
         </button>
-      </div>
-
-      <div style={{ position: "relative" }}>
-        <div ref={containerRef} className="w-full" />
-        <ChartDrawingLayer
-          chart={chartRef.current}
-          series={seriesRef.current}
-          width={chartWidth}
-          height={300}
-          activeTool={activeTool}
-          onToolUsed={() => setActiveTool("cursor")}
-          clearSignal={clearSignal}
-        />
       </div>
     </div>
   );

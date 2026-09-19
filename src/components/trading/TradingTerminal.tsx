@@ -41,6 +41,24 @@ type Position = {
 
 type PriceTick = { bid: number; ask: number; ts: string };
 
+type MarketCategory = "forex_real" | "metal" | "synthetic";
+
+const CATEGORY_META: Record<MarketCategory, { label: string; icon: string; blurb: string }> = {
+  forex_real: { label: "Currency Pairs", icon: "💱", blurb: "Real-rate forex majors" },
+  metal: { label: "Metal Pairs", icon: "🥇", blurb: "Gold and other metals" },
+  synthetic: { label: "Indices", icon: "📈", blurb: "Synthetic volatility indices" },
+};
+
+function groupMarketsByCategory(markets: Market[]): Record<MarketCategory, Market[]> {
+  const groups: Record<MarketCategory, Market[]> = { forex_real: [], metal: [], synthetic: [] };
+  for (const m of markets) {
+    if (m.type === "forex_real" || m.type === "metal" || m.type === "synthetic") {
+      groups[m.type].push(m);
+    }
+  }
+  return groups;
+}
+
 export default function TradingTerminal({
   userId,
   initialMarkets,
@@ -63,9 +81,8 @@ export default function TradingTerminal({
   const [wallet, setWallet] = useState<Wallet>(initialWallet);
   const [positions, setPositions] = useState<Position[]>(initialPositions);
   const [prices, setPrices] = useState<Record<string, PriceTick>>({});
-  const [activeMarketId, setActiveMarketId] = useState<string | null>(
-    initialMarkets[0]?.id ?? null
-  );
+  const [activeMarketId, setActiveMarketId] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<MarketCategory | null>(null);
 
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [volume, setVolume] = useState("1");
@@ -108,6 +125,7 @@ export default function TradingTerminal({
 
   const activeMarket = markets.find((m) => m.id === activeMarketId) ?? null;
   const activePrice = activeMarketId ? prices[activeMarketId] : undefined;
+  const groupedMarkets = useMemo(() => groupMarketsByCategory(markets), [markets]);
 
   const refreshWallet = useCallback(async () => {
     const { data } = await supabase
@@ -281,6 +299,23 @@ export default function TradingTerminal({
         </Link>
       </header>
 
+      <div
+        className="px-4 py-3 flex items-center gap-3 flex-wrap"
+        style={{
+          background: "linear-gradient(90deg, rgba(59,130,246,0.25), rgba(250,204,21,0.2))",
+          borderBottom: "1px solid var(--border)",
+        }}
+      >
+        <span className="text-2xl">🎉</span>
+        <p className="flex-1 text-sm font-semibold min-w-[200px]">
+          Earn an extra <span style={{ color: "var(--gold)" }}>$500</span> when you deposit{" "}
+          <span style={{ color: "var(--gold)" }}>$1,000</span> or more — limited-time bonus.
+        </p>
+        <Link href="/deposit" className="btn-fxs rounded-lg text-xs px-3 py-1.5 shrink-0">
+          Deposit now
+        </Link>
+      </div>
+
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
         {/* Demo / Live mode toggle */}
         <div className="flex gap-2">
@@ -346,23 +381,68 @@ export default function TradingTerminal({
           )}
         </div>
 
-        {/* Market tabs */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {markets.map((m) => (
+        {/* Market navigation: folders -> pair list -> trade view */}
+        {!activeMarket && !activeCategory && (
+          <div className="grid grid-cols-1 gap-3">
+            {(Object.keys(CATEGORY_META) as MarketCategory[]).map((cat) => {
+              const count = groupedMarkets[cat].length;
+              if (count === 0) return null;
+              const meta = CATEGORY_META[cat];
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className="card p-4 flex items-center gap-3 text-left transition hover:border-[var(--fxs-blue)]"
+                >
+                  <span className="text-2xl">{meta.icon}</span>
+                  <span className="flex-1">
+                    <span className="block font-semibold">{meta.label}</span>
+                    <span className="block text-xs" style={{ color: "var(--text-muted)" }}>
+                      {meta.blurb} · {count} pair{count === 1 ? "" : "s"}
+                    </span>
+                  </span>
+                  <span style={{ color: "var(--text-muted)" }}>›</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {!activeMarket && activeCategory && (
+          <div className="space-y-3">
             <button
-              key={m.id}
-              onClick={() => setActiveMarketId(m.id)}
-              className="shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition"
-              style={
-                activeMarketId === m.id
-                  ? { background: "rgba(59,130,246,0.15)", color: "var(--fxs-blue)", border: "1px solid var(--fxs-blue)" }
-                  : { background: "var(--bg-card)", color: "var(--text-muted)", border: "1px solid var(--border)" }
-              }
+              onClick={() => setActiveCategory(null)}
+              className="text-sm font-medium flex items-center gap-1"
+              style={{ color: "var(--fxs-blue)" }}
             >
-              {m.symbol}
+              ‹ {CATEGORY_META[activeCategory].label}
             </button>
-          ))}
-        </div>
+            <div className="grid grid-cols-2 gap-2">
+              {groupedMarkets[activeCategory].map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setActiveMarketId(m.id)}
+                  className="card px-4 py-3 text-left transition hover:border-[var(--fxs-blue)]"
+                >
+                  <span className="block font-semibold text-sm">{m.symbol}</span>
+                  <span className="block text-xs" style={{ color: "var(--text-muted)" }}>
+                    {m.display_name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeMarket && (
+          <button
+            onClick={() => setActiveMarketId(null)}
+            className="text-sm font-medium flex items-center gap-1"
+            style={{ color: "var(--fxs-blue)" }}
+          >
+            ‹ {activeCategory ? CATEGORY_META[activeCategory].label : "Markets"}
+          </button>
+        )}
 
         {/* Live chart */}
         {activeMarket && (
