@@ -11,13 +11,36 @@ export default function TradingSignupPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [address, setAddress] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  function isAdult(dob: string) {
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return false;
+    const eighteenYearsAgo = new Date();
+    eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+    return d <= eighteenYearsAgo;
+  }
+
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
+    if (!fullName.trim()) {
+      setError("Enter your full legal name as it appears on your official ID.");
+      return;
+    }
+    if (!isAdult(dateOfBirth)) {
+      setError("You must be 18 or older to create an account.");
+      return;
+    }
+    if (!address.trim()) {
+      setError("Enter your address.");
+      return;
+    }
     if (!agreed) {
       setError("You must confirm you're 18+ and accept the risk disclosure to continue.");
       return;
@@ -32,6 +55,11 @@ export default function TradingSignupPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        data: {
+          full_name: fullName.trim(),
+          date_of_birth: dateOfBirth,
+          address: address.trim(),
+        },
       },
     });
 
@@ -76,6 +104,50 @@ export default function TradingSignupPage() {
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
+          <div className="space-y-1.5">
+            <label htmlFor="fullName" className="text-sm font-medium">
+              Full name
+            </label>
+            <input
+              id="fullName"
+              type="text"
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="input-field w-full px-3.5 py-2.5 text-sm"
+              placeholder="As it appears on your official ID"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="dateOfBirth" className="text-sm font-medium">
+              Date of birth
+            </label>
+            <input
+              id="dateOfBirth"
+              type="date"
+              required
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              className="input-field w-full px-3.5 py-2.5 text-sm"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="address" className="text-sm font-medium">
+              Address
+            </label>
+            <input
+              id="address"
+              type="text"
+              required
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="input-field w-full px-3.5 py-2.5 text-sm"
+              placeholder="Street, city, country"
+            />
+          </div>
+
           <div className="space-y-1.5">
             <label htmlFor="email" className="text-sm font-medium">
               Email
