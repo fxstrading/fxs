@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { initiateStkPush } from "@/lib/paystack/client";
 import { getUsdToKesDepositRate } from "@/lib/trading/deposit-rate";
+import { normalizeKenyanPhone } from "@/lib/trading/phone";
 
 const MIN_DEPOSIT_USD = 10;
 
@@ -29,14 +30,20 @@ export async function POST(request: Request) {
 
   const body = await request.json();
   const amountUsd = Number(body.amount);
-  const phone: string = body.phone;
   const currency = "USD";
 
   if (!amountUsd || amountUsd < MIN_DEPOSIT_USD) {
     return NextResponse.json({ error: `Minimum deposit is $${MIN_DEPOSIT_USD}` }, { status: 400 });
   }
-  if (!phone) {
+  if (!body.phone) {
     return NextResponse.json({ error: "Phone number is required" }, { status: 400 });
+  }
+  const phone = normalizeKenyanPhone(String(body.phone));
+  if (!phone) {
+    return NextResponse.json(
+      { error: "Enter a valid Safaricom/Airtel number, e.g. 0723083524 or +254723083524" },
+      { status: 400 }
+    );
   }
   if (!user.email) {
     return NextResponse.json({ error: "An email on your account is required for M-Pesa deposits" }, { status: 400 });
