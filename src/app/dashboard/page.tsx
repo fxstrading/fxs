@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import LogoutButton from "@/components/LogoutButton";
 
 export default async function TradingDashboardPage() {
   const supabase = await createClient();
@@ -84,6 +85,11 @@ export default async function TradingDashboardPage() {
         >
           Trade History
         </Link>
+
+        <LogoutButton
+          className="w-full rounded-xl text-sm font-medium py-3 mt-3 transition hover:opacity-80"
+          style={{ background: "#f8717122", color: "#f87171", border: "1px solid #f87171" }}
+        />
       </div>
     </main>
   );
