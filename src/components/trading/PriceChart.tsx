@@ -10,6 +10,7 @@ import {
 } from "lightweight-charts";
 import { createClient } from "@/lib/supabase/client";
 import { sma, ema, bollingerBands, rsi, type CandlePoint } from "@/lib/trading/indicators";
+import { generateAnalysis, ANALYSIS_DISCLAIMER, type AnalysisResult } from "@/lib/trading/analysis";
 import ChartDrawingLayer, { type DrawingTool } from "./ChartDrawingLayer";
 
 type Candle = {
@@ -61,6 +62,7 @@ export default function PriceChart({
   const rsiSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
 
   const [activeIndicators, setActiveIndicators] = useState<Set<IndicatorKey>>(new Set());
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const activeIndicatorsRef = useRef<Set<IndicatorKey>>(activeIndicators);
 
   const [activeTool, setActiveTool] = useState<DrawingTool>("cursor");
@@ -89,6 +91,8 @@ export default function PriceChart({
     if (!chart) return;
 
     const points: CandlePoint[] = candlesRef.current.map((c) => ({ time: c.time, close: c.close }));
+
+    setAnalysis(generateAnalysis(points));
 
     // SMA
     if (activeIndicatorsRef.current.has("sma20")) {
@@ -331,6 +335,7 @@ export default function PriceChart({
   }, [latestTick, marketId]);
 
   return (
+    <div>
     <div className="flex flex-col md:flex-row gap-3">
       <div className="flex-1 min-w-0">
         <div style={{ position: "relative" }}>
@@ -409,6 +414,38 @@ export default function PriceChart({
           ⤢ Reset zoom
         </button>
       </div>
+    </div>
+
+      {analysis && (
+        <div
+          className="mt-3 rounded-xl p-3 text-sm"
+          style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <span
+              className="text-xs font-bold px-2 py-0.5 rounded"
+              style={
+                analysis.bias === "bullish"
+                  ? { background: "#4ade8022", color: "#4ade80" }
+                  : analysis.bias === "bearish"
+                  ? { background: "#f8717122", color: "#f87171" }
+                  : { background: "var(--bg-card)", color: "var(--text-muted)" }
+              }
+            >
+              {analysis.bias.toUpperCase()}
+            </span>
+            <span className="font-semibold">{analysis.summary}</span>
+          </div>
+          <ul className="space-y-1 text-xs" style={{ color: "var(--text-muted)" }}>
+            {analysis.points.map((point, i) => (
+              <li key={i}>• {point}</li>
+            ))}
+          </ul>
+          <p className="text-xs mt-2 italic" style={{ color: "var(--text-muted)" }}>
+            {ANALYSIS_DISCLAIMER}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
