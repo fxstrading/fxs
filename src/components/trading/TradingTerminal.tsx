@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { RealtimePostgresInsertPayload } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import PriceChart from "./PriceChart";
+import LogoutButton from "@/components/LogoutButton";
 
 type Market = {
   id: string;
@@ -297,6 +298,7 @@ export default function TradingTerminal({
         <Link href="/history" className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
           History
         </Link>
+        <LogoutButton className="text-sm font-medium" style={{ color: "var(--text-muted)" }} />
       </header>
 
       <div
