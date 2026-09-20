@@ -35,10 +35,24 @@ const PAIR_DERIVATIONS: Record<string, (rates: Record<string, number>) => number
   USDCHF: (r) => r.CHF,
   AUDUSD: (r) => 1 / r.AUD,
   USDCAD: (r) => r.CAD,
-  // CurrencyFreaks quotes XAU the same way as fiat: units of gold per 1 USD
-  // (a tiny fraction), so 1/r.XAU gives the USD price of one troy ounce —
-  // same inversion pattern as EURUSD/GBPUSD/AUDUSD above.
+  // New currency pairs — same inversion convention as above: pairs quoted
+  // as "foreign currency per 1 USD" (NZD, unlike the others which quote
+  // USD as the base) get 1/rate; pairs where USD is already the base
+  // currency (ZAR, SGD, HKD, MXN, INR, TRY) use the rate directly.
+  NZDUSD: (r) => 1 / r.NZD,
+  USDZAR: (r) => r.ZAR,
+  USDSGD: (r) => r.SGD,
+  USDHKD: (r) => r.HKD,
+  USDMXN: (r) => r.MXN,
+  USDINR: (r) => r.INR,
+  USDTRY: (r) => r.TRY,
+  // Precious metals — CurrencyFreaks quotes these the same way as fiat
+  // (units of metal per 1 USD, a tiny fraction), so 1/rate gives the USD
+  // price of one troy ounce, same pattern as XAUUSD.
   XAUUSD: (r) => 1 / r.XAU,
+  XAGUSD: (r) => 1 / r.XAG,
+  XPTUSD: (r) => 1 / r.XPT,
+  XPDUSD: (r) => 1 / r.XPD,
 };
 
 const anchorPrices = new Map<string, number>();
@@ -71,7 +85,7 @@ async function fetchRealRates(): Promise<Record<string, number> | null> {
 
   try {
     const res = await fetch(
-      `https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${apiKey}&symbols=EUR,GBP,JPY,CHF,AUD,CAD,KES,XAU`
+      `https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${apiKey}&symbols=EUR,GBP,JPY,CHF,AUD,CAD,KES,XAU,NZD,ZAR,SGD,HKD,MXN,INR,TRY,XAG,XPT,XPD`
     );
     if (!res.ok) throw new Error(`CurrencyFreaks returned ${res.status}`);
     const data = await res.json();
