@@ -25,6 +25,12 @@ export default function TradingGatewayPage() {
         </div>
 
         <div className="card p-4 mb-6 space-y-2">
+          <p
+            className="text-xs font-bold px-2.5 py-2 rounded-lg text-center"
+            style={{ background: "rgba(250,204,21,0.12)", color: "var(--gold)", border: "1px solid var(--gold)" }}
+          >
+            🎁 Register &amp; make a first deposit of $50 — get a $30 bonus
+          </p>
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
             Create an account and complete identity verification to deposit
             and start trading. Practice risk-free in Demo mode first.
